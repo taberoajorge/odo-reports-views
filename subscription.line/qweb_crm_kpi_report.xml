@@ -1,0 +1,161 @@
+<t t-name="studio_main_report">
+    <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+            <!--Esto contiene la firma de la empresa y dentro de el 
+                                        esta embebido el contenido de la pagina-->
+            <div class="page">
+                <div class="oe_structure" />
+                <br />
+                <br />
+                <br />
+                <div class="row">
+                    <div class="col-6">
+                        <h5>
+                            <span>Polizas vigentes:</span>
+                        </h5>
+                        <table class="table table-condensed">
+                            <tbody>
+                                <t t-set="cero" t-value="0" />
+                                <t t-foreach="docs" t-as="element"
+                                    t-if="element.x_status == 'open' or element.x_status == 'pending'"
+                                    t-as_size="element">
+                                    <t t-set="cero" t-value="cero + len(element)" /></t>
+                                <h6 t-esc="cero"></h6>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-6">
+                        <h5>
+                            <span>Polizas Nuevas:</span>
+                        </h5>
+                        <table class="table table-condensed">
+                            <tbody>
+                                <t t-set="cero" t-value="0" />
+                                <t  t-foreach="docs" t-as="element" >
+                                    <t t-set="actual_date" t-value="datetime.date.today()"></t>
+                                    <t t-set="before_date" t-value="datetime.date.today() - datetime.timedelta(days=7)"></t>
+                                    <t t-set="base_date" t-value="element.create_date" />
+                                    <t t-set="trim_date" t-value="base_date.strftime('%Y-%m-%d')" />
+                                    <t  t-if="element.x_status == 'open' and (str(actual_date) >= trim_date) and (trim_date >= str(before_date))   "
+                                    t-as_size="element">
+                                        <t t-set="cero" t-value="cero + len(element)" /></t>
+                                </t>
+                                <h6 t-esc="cero"></h6>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+                <div class="row">
+                    <div class="col-6">
+                        <h5>
+                            <span>Polizas renovadas:</span>
+                        </h5>
+                        <table class="table table-condensed">
+                            <tbody>
+                                <t t-set="cero" t-value="0" />
+                                <t  t-foreach="docs" t-as="element" >
+                                    <t t-set="actual_date" t-value="datetime.date.today()"></t>
+                                    <t t-set="before_date" t-value="datetime.date.today() - datetime.timedelta(days=7)"></t>
+                                    <t t-set="last_update" t-value="element.write_date" />
+                                    <t t-set="trim_date" t-value="last_update.strftime('%Y-%m-%d')" />
+                                    <t t-set="base_date" t-value="element.create_date" />
+                                    <t t-set="report_date" t-value="base_date.strftime('%Y-%m-%d')" />
+                                    <t t-if="element.x_status == 'open' and 
+                                    (str(actual_date) >= trim_date) and (trim_date >= str(before_date) and str(before_date) >= report_date)"
+                                    t-as_size="element">
+                                        <t t-set="cero" t-value="cero + len(element)" /></t>
+                                </t>
+                                <h6 t-esc="cero"></h6>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="col-6">
+                        <h5>
+                            <span>Polizas cerradas:</span>
+                        </h5>
+                        <table class="table table-condensed">
+                            <tbody>
+                                <t t-set="cero" t-value="0" />
+                                <t  t-foreach="docs" t-as="element" >
+                                    <t t-set="actual_date" t-value="datetime.date.today()"></t>
+                                    <t t-set="before_date" t-value="datetime.date.today() - datetime.timedelta(days=7)"></t>
+                                    <t t-set="base_date" t-value="element.create_date" />
+                                    <t t-set="trim_date" t-value="base_date.strftime('%Y-%m-%d')" />
+                                    <t  t-if="element.x_status == 'close' and (str(actual_date) >= trim_date) and (trim_date >= str(before_date))   "
+                                    t-as_size="element">
+                                        <t t-set="cero" t-value="cero + len(element)" /></t>
+                                </t>
+                                <h6 t-esc="cero"></h6>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <br/>
+                    <br/>
+                </div>
+                <div class="col-md-12">
+                    <h2>
+                        <span>Detalle de polizas</span>
+                    </h2>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-condensed">
+                            <thead>
+                                <tr>
+                                    <th>Sucursal</th>
+                                    <th>Tipo de poliza</th>
+                                    <th>Estatus</th>
+                                    <th>Producto</th>
+                                    <th>Ultima factura</th>
+                                    <th>Fecha de corte</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="docs" t-as="base">
+                                    <t t-foreach="base.x_sucursales" t-as="srs">
+                                        <tr>
+                                            <td>
+                                                <span t-field="srs.x_name"></span>
+                                            </td>
+                                            <td>
+                                                <span t-field="base.product_id" />
+                                            </td>
+                                            <td>
+                                                <span t-field="base.x_status" />
+                                            </td>
+                                            <td>
+                                                <span t-field="base.analytic_account_id.template_id.name" />
+                                            </td>
+                                            <td>
+                                                <t t-if="base.analytic_account_id.to_renew == True" >
+                                                    <span>Para renovar</span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span> Vigente </span>
+                                                </t>
+                                            </td>
+                                            <td>
+                                                <span t-field="base.analytic_account_id.recurring_next_date" />
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <td />
+                                <td class="text-right">
+                                    <strong>Total</strong>
+                                </td>
+                                <t t-set="total_value" t-value="sum(docs.mapped('quantity'))" />
+                                <td t-esc="total_value"></td>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="oe_structure" /></div>
+        </t>
+    </t>
+</t>

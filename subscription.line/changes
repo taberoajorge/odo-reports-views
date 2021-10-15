@@ -1,0 +1,5 @@
+qweb_crm_kpi_report.xml changes 23/02/21
+
+.-Se agregaron dos columnas una que toma la fecha de corte de la factura
+y otra que contiene una condicional con la funcion de renderizar un "Vigente" o "Para renovar"
+tomando como base el campo per_renew 
